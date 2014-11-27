@@ -1,0 +1,84 @@
+.visit-count{
+    margin-left:20px;
+}
+.cell .topic-title-wrapper{
+    font-size: 22px;
+}
+.cell .topic-title{
+    font-size:inherit;
+    color:#333;
+    font-weight: normal;
+}
+.cell .label{
+    position: relative;
+    top: -2px;
+}
+.label{
+
+}
+#topic{
+    padding:15px 20px;
+}
+.topic-title{
+    padding-bottom:10px;
+    border-bottom: 1px solid #ddd;
+}
+.topic-title .title {
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+}
+.topic-title .label{
+    position: relative;
+    top: -3px;
+    margin-right: 5px;
+}
+.topic-content{
+    padding:10px 0px;
+}
+#topic .zans .action {
+    color: #666;
+    font-size: 13px;
+    line-height: 30px;
+    text-decoration: none;
+    height: 30px;
+    padding: 0 10px;
+    display: inline-block;
+    background: #fff;
+    border-radius: 5px;
+}
+#topic .zans .zan {
+    background: #f27369;
+    color: #fff;
+}
+#topic .zans .action {
+    font-size: 12px;
+    margin-right: 10px;
+    float: left;
+}
+#topic .zanlogs a {
+    display: inline-block;
+}
+#topic .zanlogs a img {
+    margin-top: -2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 30px;
+    margin-right: 5px;
+    border: 2px solid #fff;
+    box-shadow: 1px 1px 2px #ccc;
+}
+.panel-heading{
+    background: none;
+}
+.panel-title{
+    line-height: 16px;
+    margin: 8px 0;
+    font-size: 16px;
+    height: 16px;
+    font-weight: 100;
+    color: #666;
+    border-left: 3px solid #88d1b4;
+    padding-left: 8px;
+}

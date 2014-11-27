@@ -1,0 +1,4 @@
+.sib-clearfix:before,
+.sib-clearfix:after {content: " "; /* 1 */display: table; /* 2 */}
+.sib-clearfix:after {clear: both;}
+.sib-clearfix {*zoom: 1;}
