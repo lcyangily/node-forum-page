@@ -7,9 +7,11 @@
     <!--<link rel="stylesheet" href="../../components/css/normalize.css">-->
     <link rel="stylesheet" href="../../c/css/normalize.css">
     <link rel="stylesheet" href="../../c/css/base.css">
+    <link rel="stylesheet" href="../../c/css/common.css">
     <link rel="stylesheet" href="../../../bower_components/bootstrap/dist/css/bootstrap.css">
 
     <link rel="stylesheet" href="../../c/css/grid.css">
+    <link rel="stylesheet" href="../../c/css/grid-x.css">
     <link rel="stylesheet" href="../index/index.css">
     <link rel="stylesheet" href="../forum/index.css">
     <link rel="stylesheet" href="index.css">
@@ -18,17 +20,7 @@
 <body>
     <div class="grid-container">
         <div class="grid-row">
-            <div class="grid-col breadcrumb-wrap">
-                <ol class="breadcrumb">
-                    <li><a href="#">首页</a>
-                    </li>
-                    <li><a href="#">儿童教育</a>
-                    </li>
-                </ol>
-            </div>
-        </div>
-        <div class="grid-row">
-            <div class="main-content grid-lg-23 grid-md-17 grid-sm-12">
+            <div class="main-content grid-lg-24 grid-md-18 grid-sm-12">
                 <div class="panel">
                     <div id="topic" class="panel-body">
                         <div class="topic-title">
@@ -55,10 +47,11 @@
                         </div>
                         <div class="topic-user clearfix">
                             <div class="zans clearfix">
-                                <a href="javascript:void(0);" class="zan action"> <i class="icon-thumbs-up"></i>
+                                <button type="button" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-thumbs-up"></span>
                                     <em>赞</em>
                                     <span>1</span>
-                                </a>
+                                </button>
                                 <span class="zanlogs">
                                     <a href="/user/34" data-original-title="专注前端技术和关爱前端人员情感问题20年 http://www.html-js.com" class="tooltip-trigger">
                                         <img src="http://tp2.sinaimg.cn/1734409185/50/40022299601/1">
@@ -68,82 +61,149 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel">
-                    <div class="topic-comments">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">跟帖</h3>
-                        </div>
-                        <div class="bd">
-                            <div class="comment-list">
-                                <div id="comment-3240" class="comment-item clearfix">
-                                    <div class="ans-user clearfix">
-                                        <a href="/user/34" data-original-title="前端乱炖" class="user">
-                                            <img src="http://tp2.sinaimg.cn/1734409185/50/40022299601/1">
-                                            <!--.nick #{ans.user_nick}-->
-                                            <!--.time #{moment(ans.createdAt).fromNow()}-->
-                                        </a>
-                                    </div>
-                                    <div class="ans-con">
-                                        <div class="con-hd"> <a href="/user/34">前端乱炖</a>
-                                            <div class="hd-time">2天前</div>
-                                        </div>
-                                        <div class="con-bd">
-                                            <p>赞了此话题！</p>
-                                        </div>
-                                        <div class="con-action">
-                                            <!----><a href="" data-nick="前端乱炖" class="at"><i class="icon-new-window icon-gray"></i>回复</a><a href="" data-md="赞了此话题！" data-nick="前端乱炖" class="reply"><i class="icon-retweet icon-gray"></i>引用</a><a target="_blank" href="http://service.weibo.com/share/share.php?url=http%3A%2F%2Fwww.html-js.com%2Ftopic%2F906%23comment-3240&amp;title=分享自@前端乱炖 的精彩跟帖【使用 Upstart 快捷管理系统服务（一）】前端乱炖：赞了此话题！&amp;appkey=659341943">分享</a><a href="" data-id="3240" class="zan"><i class="icon-thumbs-up"></i>赞 <em>0</em></a>
-                                        </div>
-                                    </div>
-                                    <div class="ans-lou">沙发</div>
+                <div class="panel panel-module topic-comments">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">跟帖</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="revert-it fn-clear">
+                            <div class="uinfo">
+                                <a href="#" class="head-icon">
+                                    <img src="http://tp2.sinaimg.cn/1785064213/50/0/1">
+                                </a>
+                            </div>
+                            <div class="revert-bd">
+                                <div class="revert-cnt-hd clearfix">
+                                    <a class="name" href="#">长孙娜</a>
+                                    <span class="hd-time">3天前</span>
+                                    <span class="label label-default pull-right">1楼</span>
+                                </div>
+                                <div class="revert-cnt">
+                                    攒了此话题！
+                                </div>
+                                <div class="btns">
+                                    <a href="#" class="btn btn-xs">
+                                        <span class="glyphicon glyphicon-share"></span>
+                                        <em>回复</em>
+                                    </a>
+                                    <a href="#" class="btn btn-xs">
+                                        <span class="glyphicon glyphicon-retweet"></span>
+                                        <em>引用</em>
+                                    </a>
+                                    <a href="#" class="btn btn-xs">
+                                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                                        <em>赞</em>
+                                    </a>
                                 </div>
                             </div>
-                            <div class="pagination clearfix">
-                                <ul>
-                                    <li class="disabled"><a>Prev</a>
-                                    </li>
-                                    <li class="active"><a href="?page=1">1</a>
-                                    </li>
-                                    <li class="disabled"><a>Next</a>
-                                    </li>
-                                </ul>
-                                <div class="total label">共 1</div>
+                        </div>
+                        <div class="revert-it fn-clear">
+                            <div class="uinfo">
+                                <a href="#" class="head-icon">
+                                    <img src="http://tp2.sinaimg.cn/1785064213/50/0/1">
+                                </a>
+                            </div>
+                            <div class="revert-bd">
+                                <div class="revert-cnt-hd fn-clear">
+                                    <a class="name" href="#">长孙娜</a>
+                                    <span class="hd-time">3天前</span>
+                                    <span class="label label-default pull-right">2楼</span>
+                                </div>
+                                <div class="revert-cnt">
+                                    攒了此话题！
+                                </div>
+                                <div class="btns">
+                                    <a href="#" class="btn btn-xs">
+                                        <span class="glyphicon glyphicon-share"></span>
+                                        <em>回复</em>
+                                    </a>
+                                    <a href="#" class="btn btn-xs">
+                                        <span class="glyphicon glyphicon-retweet"></span>
+                                        <em>引用</em>
+                                    </a>
+                                    <a href="#" class="btn btn-xs">
+                                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                                        <em>赞</em>
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                        <ul class="pagination">
+                            <li><a href="#">&laquo;</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">&raquo;</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel panel-module topic-comments">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">说几句</h3>
+                    </div>
+                    <div class="panel-body">
+                        <textarea class="reply-area" placeholder="支持markdown语法"></textarea>
                     </div>
                 </div>
             </div>
-            <div class="grid-sm-7">
+            <div class="grid-sm-6">
+                <div class="panel topic-fast-btns">
+                    <a href="javascript:;" class="btn btn-sm topic-pub-btn">
+                        <span class="glyphicon glyphicon-edit"></span>&nbsp;
+                        <span>发表帖子</span>
+                    </a>
+                    <div class="x-grid-row topic-fast-group">
+                        <div class="x-grid-1-4">
+                            <a href="#" class="topic-fast-btn">
+                                <span class="glyphicon glyphicon-share"></span>
+                                <p>回复</p>
+                            </a>
+                        </div>
+                        <div class="x-grid-1-4">
+                            <a href="#" class="topic-fast-btn">
+                                <span class="glyphicon glyphicon-share-alt"></span>
+                                <p>分享</p>
+                            </a>
+                        </div>
+                        <div class="x-grid-1-4">
+                            <a href="#" class="topic-fast-btn">
+                                <span class="glyphicon glyphicon-heart-empty"></span>
+                                <p>收藏</p>
+                            </a>
+                        </div>
+                        <div class="x-grid-1-4">
+                            <a href="#" class="topic-fast-btn last">
+                                <span class="glyphicon glyphicon-thumbs-up"></span>
+                                <p>赞</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <div class="panel side-hotforums">
                     <div class="panel-heading">
                         <h3 class="panel-title">常用模块</h3>
                     </div>
-                    <ul class="clearfix">
-                        <li><a href="#">小区黄页</a>
-                        </li>
-                        <li class="even"><a href="#">生活医疗</a>
-                        </li>
-                        <li><a href="#">儿童教育</a>
-                        </li>
-                        <li class="even"><a href="#">出行交通</a>
-                        </li>
-                        <li><a href="#">摄影交流</a>
-                        </li>
-                        <li class="even"><a href="#">体育运动</a>
-                        </li>
-                        <li><a href="#">户外运动</a>
-                        </li>
-                        <li class="even"><a href="#">1</a>
-                        </li>
-                        <li><a href="#">1</a>
-                        </li>
-                        <li class="even"><a href="#">1</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="panel">
-                    <div class="panel-heading">Panel heading without title</div>
-                    <div class="panel-body">
-                        Panel content
+                    <div class="x-grid-row">
+                        <div class="x-grid-1-2">
+                            <a href="#">小区黄页</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#" class="even">生活医疗</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#">小区黄页</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#" class="even">生活医疗</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#">小区黄页</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#" class="even">生活医疗</a>
+                        </div>
                     </div>
                 </div>
             </div>

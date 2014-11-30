@@ -476,6 +476,32 @@ define(function(require, exports, module){
                     }
                 }
             }
+        },
+        form2json : function(form){
+            var $form = $(form);
+            var o = {};
+            if($form && $form.length > 0) {
+                var formArr = $form.serializeArray();
+                $.each(formArr, function(){
+                    if(!SIB.isInvalidValue(this.value)) {
+                        if(o[this.name]) {
+                            if(!o[this.name].push) {
+                                o[this.name] = [ o[this.name] ];
+                            }
+                            o[this.name].push(this.value);
+                        } else {
+                            o[this.name] = this.value;
+                        }
+                    } else {
+                        if($('[name=' + this.name + ']:checkbox', $form).length) {
+                            o[this.name] = [this.value];
+                        } else {
+                            o[this.name] = this.value;
+                        }
+                    }
+                });
+            }
+            return o;
         }
     });
 

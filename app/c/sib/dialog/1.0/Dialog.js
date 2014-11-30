@@ -7,12 +7,13 @@
 define(function(require, exports, module){
 
     //导入依赖样式资源
-    require('css!./dialog.css');
+    //require('css!./dialog.css');
     
-    var $      = require('../../core/1.0/jQuery+'),
-        SIB    = require('../../core/1.0/Sib'),
-        Widget = require('../../core/1.0/Widget'),
-        Mask   = require('./Mask'),
+    var $      = require('jquery+'),
+        SIB    = require('sib.sib'),
+        Widget = require('sib.widget'),
+        Mask   = require('sib.dialog.mask'),
+        Events = require('events'),
         w = (function(){return this})(), d = w.document;
 
     //默认值
@@ -25,7 +26,7 @@ define(function(require, exports, module){
 
         //buttons : [], //object | array
         closeOnEscape : true, //当前对话框获取焦点的情况下，是否允许ESC键关闭
-        closeText : '×',
+        closeTpl : '×',
         //dialogClass : '',
         height : 'auto',
         width : 'auto',
@@ -48,16 +49,21 @@ define(function(require, exports, module){
             }
         },
         draggable : false,
+        theme : null,
         //resiable : true,
         //show : null, //显示时动画
         //hide : null, //关闭时动画
 
         //简单的动画效果 none | fade | slide
         effect : '',
+        speed : 'normal',
         zIndex : 999,
+        btns : null, //[{tpl : '', label : '', click : function(){}, align : 'left'}]
 
         //callback event
-        beforeClose : null,
+        iframeload : null,  //iframe load 触发的事件
+        beforeclose : null,
+        afterclose : null,
         close : null,
         drag : null,
         dragStart : null,
@@ -75,7 +81,9 @@ define(function(require, exports, module){
                     '</div>'+
                     '<a class="{clsPrefix}-close" title="Close" href="javascript:;" data-role="close"></a>' +
                     '<div class="{clsPrefix}-content" data-role="content"></div>' +
+                    '<div class="{clsPrefix}-shadow"></div>'+
                 '</div>';
+    var btnTpl = '<div class="{clsPrefix}-btns sib-clearfix" data-role="btns"></div>';
 
     var D, Dialog;
     D = Dialog = Widget.extend({
@@ -136,9 +144,17 @@ define(function(require, exports, module){
                 }
 
                 $el.attr('tabIndex', -1);
+
+                if(opts.theme) {
+                    $el.addClass(SIB.unite(opts.theme, state.mconst));
+                }
                 
                 //close
-                state.$close.html(opts.closeText);
+                if(opts.closeTpl) {
+                    state.$close.html(opts.closeTpl);
+                } else {
+                    state.$close.hide();
+                }
 
                 //非iframe情况
                 if (state.contentType !== "iframe") {
@@ -274,23 +290,34 @@ define(function(require, exports, module){
                     maxW = parseFloat(opts.maxWidth) || D.MAX_WIDTH,
                     minW = parseFloat(opts.minWidth) || D.MIN_WIDTH;
 
+                $dialog.stop(true, true);
                 // Reset content sizing
                 $content.show().css({
-                    width: "auto",
+                    //width: "auto",
                     minHeight: 0,
                     maxHeight: "none",
                     height: 0
                 });
+                //如果是iframe,则可能设置了宽度，不能auto
+                if(state.contentType != 'iframe') {
+                    $content.css('width', 'auto');
+                }
+
+                //reset dialog
+                nonContentHeight = $dialog.css({height: "auto"}).outerHeight();
+                minContentHeight = Math.max( 0, opts.minHeight - nonContentHeight );
+                maxContentHeight = typeof opts.maxHeight === "number" ?
+                                    Math.max( 0, opts.maxHeight - nonContentHeight ) :
+                                    "none";
 
                 if(opts.width == 'auto') {
                     $dialog.width('auto');
-                    var autoW = SIB.width($dialog);
+                    var autoW = SIB.outerWidth($dialog);
 
                     if(autoW > maxW) {
-                        $dialog.outerWidth(maxW);
-                    }
-                    if(autoW < minW) {
-                        $dialog.outerWidth(minW);
+                        width = maxW;
+                    } else if(autoW < minW) {
+                        width = minW;
                     }
                 } else {
                     if(opts.minWidth) {
@@ -299,17 +326,13 @@ define(function(require, exports, module){
                     if(opts.maxWidth) {
                         width = Math.min(width, maxW);
                     }
-                    $dialog.outerWidth(width);
                 }
-
-                //reset dialog
-                nonContentHeight = $dialog.css({
-                        height: "auto"
-                    }).outerHeight();
-                minContentHeight = Math.max( 0, opts.minHeight - nonContentHeight );
-                maxContentHeight = typeof opts.maxHeight === "number" ?
-                    Math.max( 0, opts.maxHeight - nonContentHeight ) :
-                    "none";
+                if(width != 'auto') {
+                    $dialog.outerWidth(width);
+                    //只要设置了dialog的宽度,则content为宽度为auto,iframe的情况可能设置content宽度
+                    $content.css('width', 'auto');
+                }
+                
 
                 if ( opts.height === "auto" ) {
                     $content.css({
@@ -431,21 +454,18 @@ define(function(require, exports, module){
                 });
                 // iframe不支持0级DOM的onload事件绑定，所以 IE 下 onload 无法触发
                 // 用 $().one 函数来代替 onload,只执行一次
-                state.$iframe.one("load", function() {
+                state.$iframe.one("load", function(e) {
+                    that._trigger('iframeload', e);
                     // 如果 dialog 已经隐藏了，就不需要触发 onload
                     if (!$dialog.is(":visible")) {
                         return;
                     }
                     // 绑定自动处理高度的事件
-                    /*if (that.get("autoFit")) {
-                        clearInterval(that._interval);
-                        that._interval = setInterval(function() {
-                            that._syncHeight();
-                        }, 300);
+                    if(!opts.width || opts.width === 'auto') {
+                        var w = getIframeWidth(state.$iframe);
+                        state.$content.width(w);
+                        that.resize();
                     }
-                    that._syncHeight();
-                    that._setPosition();*/
-                    //that.trigger("complete:show");
                     that._syncIframeHeight();
                 });
 
@@ -466,9 +486,21 @@ define(function(require, exports, module){
                     }
                     return s.join("");
                 }
+
+                function getIframeWidth($iframe){
+                    var doc = $iframe[0].contentWindow.document;
+                    if (doc.body.scrollWidth && doc.documentElement.scrollWidth) {
+                        return Math.min(doc.body.scrollWidth, doc.documentElement.scrollWidth);
+                    } else if (doc.documentElement.scrollWidth) {
+                        return doc.documentElement.scrollWidth;
+                    } else if (doc.body.scrollWidth) {
+                        return doc.body.scrollWidth;
+                    }
+                }
             },
             _createIframe: function() {
                 var state = this.state,
+                    self  = this,
                     $content = state.$content;
 
                 var $iframe = state.$iframe = $("<iframe>", {
@@ -486,11 +518,9 @@ define(function(require, exports, module){
                 }).appendTo($content);
                 // 给 iframe 绑一个 close 事件
                 // iframe 内部可通过 window.frameElement.trigger('close') 关闭
-                //Events.mixTo(this.iframe[0]);
-                this._on($iframe, {
-                    "close" : function(e) {
-                        this.close();
-                    }
+                Events.mixTo($iframe[0]);
+                $iframe[0].on('close', function(data){
+                    self.close(null, data);
                 });
             },
             _setIframeHeight : function(){
@@ -546,16 +576,43 @@ define(function(require, exports, module){
 
                 //this.render();
                 if('slide' == opts.effect) {
-                    $dialog.slideDown(fn);
+                    $dialog.slideDown(opts.speed || 'normal', fn);
                 } else if('fade' == opts.effect) {
-                    $dialog.fadeIn(fn);
+                    $dialog.fadeIn(opts.speed || 'normal', fn);
                 } else {
-                    $dialog.show(fn);
+                    $dialog.show(0, fn);
                 }
 
                 //$dialog.focus();
                 //this._focusChildEle();
                 this._trigger("focus");
+            },
+            _initBtns : function(){
+                var state = this.state,
+                    $el   = this.$element,
+                    $d    = state.$dialog,
+                    opts  = state.options,
+                    self  = this;
+
+                if(!$.isArray(opts.btns) || !opts.btns.length) return;
+                
+                var $btns = $(SIB.unite(btnTpl, state.mconst));
+                $d.append($btns);
+                $.each(opts.btns, function(i, btn){
+                    var $btn = $(btn.tpl);
+                    $btn.appendTo($btns);
+                    if($.isFunction(btn.click)) {
+                        $btn.on('click', $.proxy(btn.click, self));
+                    }
+                    if(btn.autoFocus) {
+                        $btn.focus();
+                    }
+
+                    if(btn.align && $.inArray(btn.align, ['left', 'center', 'right'])) {
+                        $btns.css('text-align', btn.align);
+                        //$btn.addClass('sib-' + opts.align);
+                    }
+                });
             }
         },
         public : {
@@ -565,6 +622,7 @@ define(function(require, exports, module){
                  * 则在DOM中无window的html节点了,DOM中可能有其他一些组件初始化，则无法找到元素
                  */
                 //this._buildHTML();
+                this._initBtns();
                 this._bindEvents();
                 this._setupMask();
                 D.allDialogs.push(this);
@@ -632,36 +690,193 @@ define(function(require, exports, module){
                     that._focusDialogEle();
                 });
                 this._trigger("open");
+                return this;
             },
-            close : function( event ){
+            close : function( event, data ){
                 var state = this.state,
                     opts = state.options,
                     $dialog = state.$dialog,
                     that = this;
 
-                if ( !state._isOpen || this._trigger( "beforeClose", event ) === false ) {
+                if ( !state._isOpen || this._trigger( "beforeClose", event, data ) === false ) {
                     return;
                 }
 
                 state._isOpen = false;
 
-                if('slide' == opts.effect) {
-                    $dialog.slideUp();
-                } else if('fade' == opts.effect) {
-                    $dialog.fadeOut();
-                } else {
-                    $dialog.hide();
+                var afterClose = function(){
+                    that._trigger('afterclose', event, data);
                 }
-                this._trigger('hide', event);
-                this._trigger('close', event);
+                if('slide' == opts.effect) {
+                    $dialog.slideUp(opts.speed || 'normal', afterClose);
+                } else if('fade' == opts.effect) {
+                    $dialog.fadeOut(opts.speed || 'normal', afterClose);
+                } else {
+                    $dialog.hide(0, afterClose);
+                }
+                this._trigger('hide', event, data);
+                this._trigger('close', event, data);
+            },
+            resize : function(){
+                this._size();
+                this._position();
+                return this;
             },
             refresh : function(){
                 var state = this.state,
                     opts = state.options;
+
+                return this;
             },
             destroy : function(){
-                
+                this.$element.remove();
+                clearInterval(this.state._interval);
+                this._off();
+                return this._super(this);
             }
+        }
+    });
+
+    $.extend(D, {
+        tipDefault : {
+            title : null,
+            closeTpl : null,
+            minHeight : 50,
+            minWidth : 350,
+            maxWidth : 550,
+            effect : 'fade',
+            modal : true,
+            afterclose : function(){
+                this.destroy();
+            },
+            tipTpl : '<div class="{clsPrefix}-tip-inner">'+
+                         '<div class="{clsPrefix}-tip-icon">'+
+                             '<i class="iconfont" title="提示">{icon}</i>'+    
+                         '</div>'+
+                         '<div class="{clsPrefix}-tip-content">'+
+                             '<h3 class="{clsPrefix}-tip-title">{msg}</h3>'+
+                         '</div>'+
+                     '</div>',
+            alert:{
+                title : '温馨提示',
+                btnTpl : '<a href="javascript:;" class="sib-btn sib-btn-confirm">确定</a>'
+            },
+            confirm:{
+                title : '请确认',
+                confirmBtnTpl : '<a href="javascript:;" class="sib-btn sib-btn-confirm">确定</a>',
+                cancelBtnTpl : '<a href="javascript:;" class="sib-btn sib-btn-cancel">取消</a>'
+            },
+            tip : {
+                title : '温馨提示'
+            }
+        },
+        alert : function(msg, callback, options){
+            var content = SIB.unite(D.tipDefault.tipTpl, $.extend(true, {
+                icon : '&#xe687;',
+                msg : msg,
+                clsPrefix : D.clsPrefix
+            }, options));
+            var defaults = {
+                title : D.tipDefault.alert.title,
+                content : content,
+                theme : '{clsPrefix}-alert',
+                btns : [{
+                    tpl : D.tipDefault.alert.btnTpl,
+                    autoFocus : true,
+                    click : function(e){
+                        callback && callback();
+                        this.close();
+                    }
+                }]
+            };
+            return new Dialog($.extend(true, {}, D.tipDefault, defaults, options)).open();
+        },
+        confirm : function(msg, title, onConfirm, onCancel, options){
+            var content = SIB.unite(D.tipDefault.tipTpl, $.extend(true, {
+                icon : '&#xe681;',
+                msg : msg,
+                clsPrefix : D.clsPrefix
+            }, options));
+
+            var defaults = {
+                title : D.tipDefault.confirm.title || '请确认',
+                content : content,
+                theme : '{clsPrefix}-confirm',
+                btns : [{
+                    tpl : D.tipDefault.confirm.confirmBtnTpl,
+                    autoFocus : true,
+                    click : function(e){
+                        $.isFunction(onConfirm) && onConfirm();
+                        this.close();
+                    }
+                }, {
+                    tpl : D.tipDefault.confirm.cancelBtnTpl,
+                    click : function(){
+                        $.isFunction(onCancel) && onCancel();
+                        this.close();
+                    }
+                }]
+            }
+            return new Dialog($.extend(true, {}, D.tipDefault, defaults, options)).open();
+        },
+        tip : function(msg, timeout, callback, options){
+            var content = SIB.unite(D.tipDefault.tipTpl, $.extend(true, {
+                icon : '&#xe686;',
+                msg : msg,
+                clsPrefix : D.clsPrefix
+            }, options));
+
+            var defaults = {
+                title : D.tipDefault.tip.title,
+                theme : '{clsPrefix}-tip',
+                modal : false,
+                content : content
+            }
+            var d = new Dialog($.extend(true, {}, D.tipDefault, defaults, options));
+            d.open();
+            setTimeout(function(){
+                d.close();
+                $.isFunction(callback) && callback();
+            }, timeout || 1000);
+        },
+        blockUI : function(opts){
+            
+            var bui = $(w).data(D.widgetName + '-blockui');
+            if(bui) {
+                D.unblockUI();
+            }
+            bui = new Dialog($.extend(true, {}, defaults, opts, {
+                trigger : null,
+                closeOnEscape : false,
+                closeTpl : null,
+                minHeight : 50,
+                modal : true,
+                position : {
+                    my : 'center',
+                    at : 'center',
+                    of : w,
+                    collision : 'fit',
+                    // 保证顶部header和close按钮始终能在可视区域内
+                    using: function( pos ) {
+                        var topOffset = $( this ).css( pos ).offset().top;
+                        if ( topOffset < 0 ) {
+                            $( this ).css( "top", pos.top - topOffset );
+                        }
+                    }
+                },
+                draggable : false
+            }));
+            
+            $(w).data(D.widgetName + '-blockui', bui);
+            bui.open();
+        },
+        unblockUI : function(){
+            var d = $(w).data(D.widgetName + '-blockui');
+            if(d) {
+                d.close();
+                d.destroy();
+            }
+            $(w).data(D.widgetName + '-blockui', null);
         }
     });
 

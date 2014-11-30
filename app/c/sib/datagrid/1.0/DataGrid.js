@@ -9,13 +9,13 @@
 
 define(function(require, exports, module) {
 
-    require('css!./DataGrid.css');
+    //require('css!./DataGrid.css');
 
-    var $ = require('../../core/1.0/jQuery+'),
-        Widget = require('../../core/1.0/Widget'),
-        SIB = require('../../core/1.0/Sib'),
-        Pagination = require('../../pagination/1.0/Pagination'),
-        JSON = require('../../core/1.0/json2'),
+    var $ = require('jquery+'),
+        Widget = require('sib.widget'),
+        SIB = require('sib.sib'),
+        Pagination = require('sib.pagination'),
+        JSON = require('json'),
         //i18n = require('./i18n/en'),
         //viewDefault = require('./plugins/default.js'),
         w = (function(){return this;})(), d = w.document;
@@ -776,7 +776,7 @@ define(function(require, exports, module) {
                     self = this;
 
                 if (!opts.url) return;
-
+                
                 //刷新数据前,先隐藏列显示面板
                 if(opts.hasBackboard && $backboards && $backboards.is(':visible')){
                     $grid.find('a.a-datagrid-btnBackboardUp').trigger('click');
@@ -1273,7 +1273,8 @@ define(function(require, exports, module) {
                 if(opts.pagination) {
                     new Pagination({
                         target : $pager[0],
-                        total : data.total
+                        total : data.total,
+                        pageNumber : opts.pageNumber
                     });
                 }
 
@@ -1351,6 +1352,7 @@ define(function(require, exports, module) {
                 var state = this.state,
                     opts  = state.options;
 
+                this.clearSelections();//先将之前选择的清空
                 state.data = data;
                 state.showStartIndex = 0; //显示数据开始坐标在所有数据中的位置
 
@@ -1453,7 +1455,7 @@ define(function(require, exports, module) {
             reload : function(param){
                 var state = this.state,
                     opts = state.options;
-        
+                this.option('pageNumber', 1);//初始化到第一页
                 $.extend(opts.queryParams, param);
                 this._loadData();
             }, 
@@ -1535,7 +1537,16 @@ define(function(require, exports, module) {
                 var state = this.state,
                     $grid = state.$grid,
                     $view = state.$view,
+                    uniqueColumns = state.uniqueColumns,
+                    uniqueFrozenCols = state.uniqueFrozenCols,
                     selectedRows = state.selectedRows;
+
+                //将全选去掉
+                $.each(uniqueColumns.concat(uniqueFrozenCols), function(i, col){
+                    if(col.checkbox){ //checkbox列
+                        col.$th.find('input[type=checkbox]').prop('checked', false);
+                    }
+                });
 
                 var $ss = $view.find('tr.a-datagrid-row-selected[sib-grid-oid='+state.oid+']');
                 $ss.removeClass('a-datagrid-row-selected');

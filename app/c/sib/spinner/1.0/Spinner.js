@@ -7,11 +7,11 @@
 define(function(require, exports, module){
 
     //导入依赖样式资源
-    require('css!./spinner.css');
+    //require('css!./spinner.css');
 
-    var $      = require('../../core/1.0/jQuery+'),
-        SIB    = require('../../core/1.0/Sib'),
-        Widget = require('../../core/1.0/Widget'),
+    var $      = require('jquery+'),
+        SIB    = require('sib.sib'),
+        Widget = require('sib.widget'),
         w = (function(){return this})(), d = w.document;
 
     //默认值
@@ -38,7 +38,11 @@ define(function(require, exports, module){
         change : null,
         create : null,
         spin : null,
-        start : null,
+        /** 
+         * start 事件改成 changestart IE下input元素trigger会自动有个属性值为fileopen的start属性，
+         * 导致报错，参见 jquery1.8.3 2973行 trigger 函数
+         */
+        changestart : null,
         stop : null
     };
 
@@ -69,7 +73,7 @@ define(function(require, exports, module){
         },
         private : {
             _prepareOption : function() {
-                var clsPrefix = this.state.const.clsPrefix;
+                var clsPrefix = this.state.mconst.clsPrefix;
                 this.state.ALL_CLASS = {
                     WRAP : clsPrefix,
                     BTN_UP : clsPrefix + '-up',
@@ -90,7 +94,7 @@ define(function(require, exports, module){
                     state.$upBtn   = $(opts.btns.up);
                     $w = state.$wrap = $el.parent();
                 } else {
-                    $w = state.$wrap = $(SIB.unite(tmpl, state.const));
+                    $w = state.$wrap = $(SIB.unite(tmpl, state.mconst));
                     $w.insertBefore($el);
                     $w.prepend($el);
                     var $as = $w.find('>a');
@@ -155,7 +159,8 @@ define(function(require, exports, module){
                     },
                     //避免input 和 keyup 同时出发，每次都出发两次，但也不能用SIB.buffer，因为需要实时校验
                     inputchange : SIB.fixInterval(function(){
-                        this._value(this.$element.val(), false);
+                        //this._value(this.$element.val(), false);
+                        this.value(this.$element.val());
                     }),
                     focus: function() {
                         state.previous = $el.val();
@@ -169,7 +174,10 @@ define(function(require, exports, module){
                         this._stop();
                         this._refresh();
                         if ( state.previous !== $el.val() ) {
-                            this._trigger( "change", event );
+                            this._trigger( "change", event, {
+                                newVal : $el.val(),
+                                oldVal : state.previous
+                            });
                         }
                     },
                     mousewheel: function( event, delta ) {
@@ -316,7 +324,7 @@ define(function(require, exports, module){
             },
             _start: function( event ) {
                 var state = this.state;
-                if ( !state.spinning && this._trigger( "start", event ) === false ) {
+                if ( !state.spinning && this._trigger( "changestart", event ) === false ) {
                     return false;
                 }
 

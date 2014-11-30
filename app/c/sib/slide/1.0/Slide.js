@@ -8,13 +8,14 @@
  */
 define(function(require, exports, module){
     //导入依赖样式资源
-    require('css!./slide.css');
+    //require('css!./slide.css');
 
-    var $      = require('../../core/1.0/jQuery+'),
-        Widget = require('../../core/1.0/Widget'),
-        SIB    = require('../../core/1.0/Sib'),
-        fade   = require('./plugins/effect.fade'),
-        scrollx= require('./plugins/effect.scrollx'),
+    var $      = require('jquery+'),
+        Widget = require('sib.widget'),
+        SIB    = require('sib.sib'),
+        fade   = require('sib.slide.fade'),
+        scrollx= require('sib.slide.scrollx'),
+        scrolly= require('sib.slide.scrolly'),
         w      = (function(){return this})(), 
         d      = w.document;
 
@@ -53,6 +54,7 @@ define(function(require, exports, module){
             defaults : defaults,
             plugins : {
                 scrollx : scrollx,
+                scrolly : scrolly,
                 fade : fade
             },
             clsPrefix : 'sib-slide'
@@ -73,7 +75,8 @@ define(function(require, exports, module){
             _prepareOption : function() {
                 var state = this.state,
                     opts = state.options,
-                    $el = this.$element;
+                    $el = this.$element,
+                    bodyTmpl = '<div class="{clsPrefix}-content"></div>';
 
                 state.circulate = opts.circulate;
                 state.effect = (typeof opts.effect === 'string' ? this.constructor.plugins[opts.effect] : opts.effect) || this.constructor.plugins['default'];
@@ -86,10 +89,9 @@ define(function(require, exports, module){
                 var $panels = state.$panels = $el.find(opts.panels);
                 state.length = $panels.size();
                 state.$body = $panels.parent();
-                /** 放到effect init中，有些效果不需要这一步
                 if($el[0] == state.$body[0]) { //panel层与Slide间没有body
                     state.$body = $panels.wrapAll(SIB.unite(bodyTmpl, this.constructor)).parent();
-                }*/
+                }
 
                 state.activeIndex = +Number(opts.activeIndex);
                 // 如果是跑马灯，则不考虑默认选中的功能，一律定位在第一页
@@ -281,6 +283,7 @@ define(function(require, exports, module){
             // 修正跑马灯开始的滚动位置
             _fix_pre_carousel : function(){
                 var state = this.state,
+                    $body = state.$body, 
                     $panels = state.$panels,
                     opts = state.options;
 
@@ -293,6 +296,7 @@ define(function(require, exports, module){
             // 修正跑马灯结尾的滚动位置
             _fix_next_carousel : function(){
                 var state = this.state,
+                    $body = state.$body, 
                     $panels = state.$panels,
                     opts = state.options;
 
@@ -312,7 +316,7 @@ define(function(require, exports, module){
                     index = $panels.size() - opts.colspan;
                 }
 
-                this._trigger('beforeChange', null, {
+                var ret = this._trigger('beforeChange', null, {
                     oldVal : {
                         triggerIndex : this._getTriggerIndex(state.activeIndex),
                         panelIndex : state.activeIndex,
@@ -327,7 +331,10 @@ define(function(require, exports, module){
                     }
                 });
 
-                this._switchTo(index, callback);
+                if(ret) {
+                    this._switchTo(index, callback);
+                }
+                
                 return this;
             },
             _switchTo : function(index, callback){
@@ -335,6 +342,7 @@ define(function(require, exports, module){
                     $panels = state.$panels,
                     $triggers = state.$triggers,
                     opts = state.options,
+                    $body = state.$body,
                     self = this,
                     _getTriggerIndex = self._getTriggerIndex;
                 //首先高亮显示tab
@@ -405,12 +413,19 @@ define(function(require, exports, module){
                 var state = this.state,
                     opts = state.options;
 
+                //如果没有panels 则直接返回
+                var $el = this.$element;
+                var $panels = $el.find(opts.panels);
+                if($panels.length <= 0) {
+                    return null;
+                }
+
                 this._prepareOption();
-                state.effect.init(this);    //放到buildHTML前
                 this._buildHTML();
                 //绑定事件
                 this._bindEvent();
                 //this._fixSize(state.activeIndex);
+                state.effect.init(this);
                 //初始化起始位置,调用go, _switchTo 都有校验。
                 this._hightlightTrigger(this._getTriggerIndex(state.activeIndex));
                 state.effect.switchPanel(this, state.activeIndex);

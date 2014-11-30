@@ -6,12 +6,9 @@
  */
 define(function(require, exports, module){
 
-    //导入依赖样式资源
-    require('css!./popup.css');
-
-    var $      = require('../../core/1.0/jQuery+'),
-        Widget = require('../../core/1.0/Widget'),
-        SIB    = require('../../core/1.0/Sib'),
+    var $      = require('jquery+'),
+        Widget = require('sib.widget'),
+        SIB    = require('sib.sib'),
         w = (function(){return this})(), d = w.document;
 
     //默认值
@@ -27,11 +24,14 @@ define(function(require, exports, module){
         delay : 80,
         disabled : false,
         effect : 'none',    //none | fade | slide
-        duration : 250,
+        speed : 'normal',
+        //duration : 250,
         triggerActiveCls : 'sib-popup-active',
         clsPrefix : 'sib-popup',
         
         //event
+        beforeshow : $.noop,
+        aftershow : $.noop,
         show : $.noop,//显示时回调 evt data
         hide : $.noop //隐藏时回调 evt data
     };
@@ -66,7 +66,9 @@ define(function(require, exports, module){
                     self  = this,
                     triggerType = opts.triggerType;
 
-                if (triggerType === 'click') {
+                if(!triggerType || triggerType === 'none') {
+                    return;
+                } else if (triggerType === 'click') {
                     this._bindClick();
                 } else {
                     // 默认是 hover
@@ -82,7 +84,7 @@ define(function(require, exports, module){
                 this._on($trigger, {
                     'click' : function( event ){
                         var $ct = $(event.currentTarget),
-                            dataName = state.const.clsPrefix + '-trigger-active',
+                            dataName = state.mconst.clsPrefix + '-trigger-active',
                             active = $ct.data(dataName);
                         if(active === true) {
                             this.hide();
@@ -108,7 +110,7 @@ define(function(require, exports, module){
 
                         //var $ct = $(event.target),
                         var $ct = $(event.currentTarget),
-                            dataName = state.const.clsPrefix + '-trigger-active',
+                            dataName = state.mconst.clsPrefix + '-trigger-active',
                             active = $ct.data(dataName);
 
                         if(!active) {
@@ -147,7 +149,7 @@ define(function(require, exports, module){
                 var state = this.state,
                     opts  = state.options,
                     $trigger = state.$trigger,
-                    dataName = state.const.clsPrefix + '-trigger-active';
+                    dataName = state.mconst.clsPrefix + '-trigger-active';
 
                 if(opts.disabled) {
                     return;
@@ -199,13 +201,27 @@ define(function(require, exports, module){
             _refresh : function(){
                 
             },
+            setOptions : function(opts){
+                var state = this.state;
+                var ret = this._super(opts);
+
+                if(opts['content']) {
+                    state._hasBuild = false;
+                }
+                return ret;
+            },
             //参数,激活那个触发元素(一个Popup可能有多个触发元素)
             show : function( active ) {
                 var state = this.state,
+                    $el   = this.$element,
+                    that  = this,
                     opts  = state.options,
                     $trigger = state.$trigger;
 
                 if(opts.disabled) {
+                    return;
+                }
+                if(this._trigger( "beforeshow", null ) === false) {
                     return;
                 }
                 //默认第一个
@@ -217,7 +233,7 @@ define(function(require, exports, module){
                 if(!opts.target && !state._hasBuild) {
                     state._hasBuild = true;
                     var content = opts.content,
-                        contentCls = '.' + state.const.clsPrefix + '-content',
+                        contentCls = '.' + state.mconst.clsPrefix + '-content',
                         $content = this.$element.find(contentCls);
                     if($.isFunction(opts.content)) {
                         content = opts.content.call($trigger[0]);
@@ -230,24 +246,54 @@ define(function(require, exports, module){
                     }
                     this.render();
                 }
-                this.$element.show();
-                this._trigger('show', null, {
+                //this.$element.show();
+                var eventParam = {
                     triggers : $trigger, //可能多个trigger，如果一个则triggers === active
                     activeTrigger : active,
-                    popup  : this.$element
-                });
+                    popup  : $el
+                };
+                var fn = function(){
+                    that._trigger('showafter', null, eventParam);
+                };
+                if('slide' == opts.effect) {
+                    $el.slideDown(opts.speed || 'normal', fn);
+                } else if('fade' == opts.effect) {
+                    $el.fadeIn(opts.speed || 'normal', fn);
+                } else {
+                    $el.show(0, fn);
+                    //$el.show(fn);
+                }
+
+                this._trigger('show', null, eventParam);
                 if(state.$activeTrigger) {
                     this._syncPosition();
                 }
             },
             hide : function(){
+                var $el   = this.$element,
+                    that  = this,
+                    state = this.state,
+                    opts = state.options;
                 var $trigger = this.state.$trigger;
                 this._makeActive();
-                this.$element.hide();
-                this._trigger('hide', null, {
+                //this.$element.hide();
+                
+                var eventParam = {
                     triggers : $trigger,
                     popup  : this.$element
-                });
+                };
+                var fn = function(){
+                    that._trigger('showafter', null, eventParam);
+                };
+                
+                if('slide' == opts.effect) {
+                    $el.slideUp(opts.speed || 'normal', fn);
+                } else if('fade' == opts.effect) {
+                    $el.fadeOut(opts.speed || 'normal', fn);
+                } else {
+                    $el.hide(0, fn);
+                }
+                this._trigger('hide', null, eventParam);
             }
         }
     });

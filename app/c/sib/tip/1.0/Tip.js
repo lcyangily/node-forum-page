@@ -7,11 +7,11 @@
 define(function(require, exports, module){
 
     //导入依赖样式资源
-    require('css!./tip.css');
+    //require('css!./tip.css');
 
-    var $      = require('../../core/1.0/jQuery+'),
-        Popup  = require('../../popup/1.0/Popup'),
-        SIB    = require('../../core/1.0/Sib'),
+    var $      = require('jquery+'),
+        Popup  = require('sib.popup'),
+        SIB    = require('sib.sib'),
         w = (function(){return this})(), d = w.document;
 
     //默认值
@@ -57,7 +57,7 @@ define(function(require, exports, module){
             _prepareOption : function() {
                 var state = this.state,
                     opts  = state.options,
-                    arrowSelector = '.' + state.const.clsPrefix + '-arrow';
+                    arrowSelector = '.' + state.mconst.clsPrefix + '-arrow';
 
                 state.$trigger = $(opts.trigger);
                 state.$tip     = this.$element;
@@ -66,7 +66,7 @@ define(function(require, exports, module){
                 var state = this.state,
                     $tip  = state.$tip,
                     opts  = state.options,
-                    aTmpl = SIB.unite(arrowTmpl, state.const);
+                    aTmpl = SIB.unite(arrowTmpl, state.mconst);
 
                 state.$arrow = $(aTmpl).appendTo($tip);
                 this.$element.addClass(opts.theme);
@@ -76,7 +76,7 @@ define(function(require, exports, module){
                     opts  = state.options,
                     $arrow= state.$arrow,
                     allCls= '{clsPrefix}-left {clsPrefix}-right {clsPrefix}-top {clsPrefix}-bottom',
-                    allCls= SIB.unite(allCls, state.const),
+                    allCls= SIB.unite(allCls, state.mconst),
                     self  = this,
                     size  = opts.arrowWidth,
                     dist  = opts.arrowWidth + opts.radiusSize;//箭头离边的最小距离(宽度6 + 圆角6)
@@ -166,7 +166,7 @@ define(function(require, exports, module){
 
                         //计算arrow的位置
                         if(cls) {
-                            $arrow.addClass(SIB.unite('{clsPrefix}-' + cls, state.const)).show();
+                            $arrow.addClass(SIB.unite('{clsPrefix}-' + cls, state.mconst)).show();
                             if(cls == 'left' || cls == 'right') {
                                 tRange = {
                                     min : tr.top,

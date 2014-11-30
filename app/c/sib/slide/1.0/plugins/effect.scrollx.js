@@ -1,6 +1,5 @@
 define(function(require, exports, module){
-    var $ = require('../../../core/1.0/jQuery+');
-    var Sib = require('../../../core/1.0/Sib');
+    var $ = require('jquery+');
 
     var scrollx = {
         options : {
@@ -9,12 +8,8 @@ define(function(require, exports, module){
         init : function( oChoose ){
             var state = oChoose.state,
                 $panels = state.$panels,
-                $body = state.$body,
-                bodyTmpl = '<div class="{clsPrefix}-content"></div>';
+                $body = state.$body;
 
-            if($el[0] == state.$body[0]) { //panel层与Slide间没有body
-                state.$body = $panels.wrapAll(Sib.unite(bodyTmpl, oChoose.constructor)).parent();
-            }
             $panels.show();
             // 设置定位信息，为滚动效果做铺垫
             $body.css('position', 'relative');

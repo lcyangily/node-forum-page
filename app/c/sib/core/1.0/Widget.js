@@ -7,13 +7,13 @@
  * @version V1.0   
  */
 define(function(require, exports, module){
-    var $ =     require('./jQuery+'),
-        Class = require('./Class'),
-        SIB =   require('./Sib'),
+    var $ =     require('jquery+'),
+        Class = require('sib.class'),
+        SIB =   require('sib.sib'),
         w = (function(){this})(), d = document;
 
     //导入依赖样式资源
-    require('css!./commons.css');
+    //require('css!./commons.css');
 
     var uuid = 0,
         Widget, 
@@ -76,7 +76,7 @@ define(function(require, exports, module){
                         $parentNode : $parentNode,
                         i18n : this.constructor.i18n,
                         oid : this.constructor.WN + (''+Math.random()).replace( /\D/g, "" ),
-                        const : mconst
+                        mconst : mconst
                     });
                     i18n();
                     this._init();
@@ -108,6 +108,10 @@ define(function(require, exports, module){
                 //国际化资源加载
                 function i18n() {
                     if(!options.lang) {
+                        return;
+                    }
+                    if(typeof options.lang != 'string') {
+                        state.i18n = options.lang;
                         return;
                     }
                     
@@ -178,6 +182,13 @@ define(function(require, exports, module){
             },
             //from jqueryui
             _off : function( element, eventName ){
+                if(!eventName && typeof element === 'string') {
+                    eventName = element;
+                    element = this.$element;
+                }
+                if(!element) {
+                    element = this.$element;
+                }
                 eventName = (eventName || "").split( " " ).join( this.constructor.eventNamespace + " " ) + this.constructor.eventNamespace;
                 element.unbind( eventName ).undelegate( eventName );
             },
@@ -207,7 +218,7 @@ define(function(require, exports, module){
     
                 this.$element.trigger( event, data );
                 return !( $.isFunction( callback ) &&
-                    callback.apply( this.$element[0], [ event ].concat( data ) ) === false ||
+                    callback.apply( this, [ event ].concat( data ) ) === false ||
                     event.isDefaultPrevented() );
             },
             widget : function(){
@@ -219,6 +230,8 @@ define(function(require, exports, module){
 
                 if(!state.rendered) {
                     state.rendered = true;
+                } else {
+                    return;
                 }
 
                 //$parentNode存在而且当前组件不在页面中
@@ -226,6 +239,7 @@ define(function(require, exports, module){
                     this.$element.appendTo($parentNode);
                 }
             },
+            destroy : function(){},
             i18n : function( el, method, key ){
                 var i18n = this.state.i18n || {};
 //                if(!i18n) { //有可能没给默认值

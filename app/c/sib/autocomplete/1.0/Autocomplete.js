@@ -11,16 +11,15 @@
  * 选择值总是提示不存在！对IE只想说一个字：X
  */
 define(function(require, exports, module){
-    
-    //导入依赖样式资源
-    require('css!./Autocomplete.css');
-    
+
     //depends
-    var $ = require('../../core/1.0/jQuery+'),
-        Widget = require('../../core/1.0/Widget'),
-        SIB  = require('../../core/1.0/Sib'),
-        JSON = require('../../core/1.0/json2'),
-        Menu = require('../../menu/1.0/Menu'),
+    var $ = require('jquery+'),
+        Widget = require('sib.widget'),
+        SIB  = require('sib.sib'),
+        JSON = require('json'),
+        Menu = require('sib.menu'),
+        tab  = require('sib.autocomplete.tab'),
+        table = require('sib.autocomplete.table'),
         w = (function(){return this;})(), d = w.document;
 
     //config
@@ -35,6 +34,7 @@ define(function(require, exports, module){
         method : 'get',    //get post
         paramType : null, //'json' = 提交的参数是json格式,将对象转成json格式的串
         contentType : null, //'application/json' = 提交的数据是json格式
+        width : 'smart',    //smart-最小宽度是输入框, auto-自动, number-固定的
         zIndex : 1000,
         position : {    //位置
             my : 'left top-1', 
@@ -42,6 +42,7 @@ define(function(require, exports, module){
         },
 
         listItemFormatter : null, //list显示每条 function
+        listItemFilter : null, //function 过滤结果集
         //在输入框失去焦点时有推联想搜索结果，启用自动回填当前被激活的数据项
         enableAutoFill : true,
         //启用当无推荐结果时展示提示信息功能
@@ -63,6 +64,7 @@ define(function(require, exports, module){
         hotOptions : {}, 
         
         //callback
+        resultchangeshowbefore : null, //resultchange 后 show 之前触发,返回false 不显示渲染结果集
         inputchange : null, //输入框值改变
         querychange : null, //查询值改变(如果输入框值改变且达到最小查询长度且本次值与上一次查询值不同)
         resultchange : null, //查询结果集改变
@@ -116,6 +118,9 @@ define(function(require, exports, module){
             return prop;
         }
     }
+    var isDigits = function(val){
+        return /^\d+$/.test( val );
+    }
 
     var Autocomplete,A;
 
@@ -124,7 +129,10 @@ define(function(require, exports, module){
             widgetName : 'SIBAutocomplete',
             require : require,
             defaults : defaults,
-            hotPlugins : []
+            hotPlugins : {
+                tab   : tab,
+                table : table
+            }
         },
         private : {
             _prepareOption : function(){
@@ -417,7 +425,7 @@ define(function(require, exports, module){
                     },
                     'resultchange' : function( event ){
                         //alert('result is change');
-                        if(state.results && state.results.length && !opts.disabled && !state.cancelSearch) {
+                        if(this._trigger('resultchangeshowbefore') !== false && state.results && state.results.length && !opts.disabled && !state.cancelSearch) {
                             this._suggest();
                         } else if( this.labelValue() && !opts.disabled && !state.cancelSearch) {
                             this._showErrorMsg(this.labelValue());
@@ -560,7 +568,8 @@ define(function(require, exports, module){
     
                         self._trigger('select', event, {
                             node : ui.item,
-                            selected : item
+                            selected : item,
+                            oldTerm : state.term    //在选择的时候，获取输入的term，否则 select事件中获取的都是 selected的label
                         });
                     }
                 });
@@ -703,9 +712,9 @@ define(function(require, exports, module){
                     $ac      = state.$ac;
 
                 $message.outerWidth( Math.max(
-                    $message.width( "" ).outerWidth(),
-                    $ac.outerWidth()
-                ));
+                        $message.width( "" ).outerWidth(),
+                        $ac.outerWidth()
+                    ));
             },
             _resizeHot : function(){
                 var state = this.state,
@@ -728,14 +737,21 @@ define(function(require, exports, module){
             _resizeMenu : function () {
                 var state = this.state, 
                     $ac   = state.$ac, 
+                    opts  = state.options,
                     $menu = state.menu.data().$menu;
                 
-                $menu.outerWidth( Math.max(
-                    // Firefox wraps long text (possibly a rounding bug)
-                    // so we add 1px to avoid the wrapping (#7513)
-                    $menu.width( "" ).outerWidth() + 1,
-                    $ac.outerWidth()
-                ) );
+                if(isDigits(opts.width)) {
+                    $menu.outerWidth(opts.width);
+                } else if(opts.width == 'auto') {
+                    //自动
+                } else {
+                    $menu.outerWidth( Math.max(
+                            // Firefox wraps long text (possibly a rounding bug)
+                            // so we add 1px to avoid the wrapping (#7513)
+                            $menu.width( "" ).outerWidth() + 1,
+                            $ac.outerWidth()
+                        ) );
+                }
             },
             //显示overlay 重新设置z-index,如果跟Dialog公用,Dialog会不停的增大,导致被隐藏
             _showOverlay : function(){
@@ -860,6 +876,11 @@ define(function(require, exports, module){
                     content = self._listFilter( content, request.term )
                 }
 
+                if($.isFunction(opts.listItemFilter)) {
+                    content = $.grep( content, function(item) {
+                        return opts.listItemFilter(item);
+                    });
+                }
                 state.results = content;
 
                 state.pending--;

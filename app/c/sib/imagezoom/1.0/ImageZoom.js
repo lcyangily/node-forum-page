@@ -7,11 +7,11 @@
 define(function(require, exports, module){
 
     //导入依赖样式资源
-    require('css!./imagezoom.css');
+    //require('css!./imagezoom.css');
 
-    var $      = require('../../core/1.0/jQuery+'),
-        Widget = require('../../core/1.0/Widget'),
-        SIB    = require('../../core/1.0/Sib'),
+    var $      = require('jquery+'),
+        Widget = require('sib.widget'),
+        SIB    = require('sib.sib'),
         w = (function(){return this})(), d = w.document,
         isIE=!!w.ActiveXObject,
         isIE6=isIE&&!w.XMLHttpRequest,
@@ -185,6 +185,7 @@ define(function(require, exports, module){
                 var state = this.state,
                     $el   = this.$element;
 
+                //如果同一张图片则不用计算尺寸，直接返回
                 if(state.url === url) {
                     this._trigger('largeimageloaded');
                     return;

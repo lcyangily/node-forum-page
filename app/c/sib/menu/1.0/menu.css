@@ -11,8 +11,8 @@
     list-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);}
 .sib-menu-divider {margin: 5px -2px 5px -2px;height: 0;font-size: 0;line-height: 0;border-width: 1px 0 0 0;}
 .sib-menu-item a {text-decoration: none;display: block;padding: 2px .4em;line-height: 1.5;min-height: 0; /* support: IE7 */font-weight: normal;zoom:1}
-.sib-menu-item a.sib-state-focus,
-.sib-menu-item a.sib-state-active {font-weight: normal;margin: -1px;}
+.sib-menu-item .sib-state-focus,
+.sib-menu-item .sib-state-active {font-weight: normal;margin: -1px;}
 .sib-menu .sib-state-disabled {font-weight: normal;margin: .4em 0 .2em;line-height: 1.5;}
 .sib-menu .sib-state-disabled a {cursor: default;}
 

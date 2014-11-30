@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="../../c/css/normalize.css">
     <link rel="stylesheet" href="../../c/css/base.css">
     <link rel="stylesheet" href="../../c/css/grid.css">
+    <link rel="stylesheet" href="../../c/css/grid-x.css">
+    <link rel="stylesheet" href="../../c/css/common.css">
     <link rel="stylesheet" href="index.css">
 </head>
 
@@ -27,8 +29,67 @@
             </div>
             <div id="J_topMainNav" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-right navbar-horizontal">
-                    <li><a href="/signup">注册</a></li>
-                    <li><a href="/signin">登录</a></li>
+                    <li><a href="#">注册</a>
+                    </li>
+                    <li>
+                        <a href="#" id="J_loginBtn">登录</a>
+                        <div class="user-detail" id="J_userDetail" style="display:none;">
+                            <div class="user-detail-con">
+                                <div class="username-line">
+                                    <a href="#">
+                                        <span class="glyphicon glyphicon-home"></span> 我的首页
+                                    </a>
+                                    <a href="#" class="pull-right">
+                                        <span class="glyphicon glyphicon-off"></span> 退出
+                                    </a>
+                                </div>
+                                <div class="uinfo-horizontal">
+                                    <dl>
+                                        <dt>积分：</dt>
+                                        <dd><a href="#">100</a></dd>
+                                        <dt>认证：</dt>
+                                        <dd>
+                                            <a href="#">业主认证</a>
+                                            <a href="#" class="pull-right">申请>></a>
+                                        </dd>
+                                    </dl>
+                                </div>
+                                <ul class="navlist clearfix" id="navlist">
+                                    <li>
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-envelope"></span>
+                                            <span>消息</span>
+                                            <span>(1)</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-list-alt"></span>
+                                            <span>我的帖子</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-user"></span>
+                                            <span>好友</span>
+                                        </a>
+                                    </li>
+                                    <li><a href="#">
+                                            <span class="glyphicon glyphicon-retweet"></span>
+                                            <span>关注</span>
+                                        </a>
+                                        
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="glyphicon glyphicon-cog"></span>
+                                            <span>设置</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="../index/index.html">首页</a>
@@ -37,7 +98,8 @@
                     </li>
                     <li><a href="../forum/index.html">论坛</a>
                     </li>
-                    <li><a href="#">版块</a></li>
+                    <li><a href="#">版块</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -130,23 +192,25 @@
                     <div class="panel-heading">
                         <h3 class="panel-title">常用模块</h3>
                     </div>
-                    <ul class="clearfix">
-                        <li><a href="#">小区黄页</a></li>
-                        <li class="even"><a href="#">生活医疗</a></li>
-                        <li><a href="#">儿童教育</a></li>
-                        <li class="even"><a href="#">出行交通</a></li>
-                        <li><a href="#">摄影交流</a></li>
-                        <li class="even"><a href="#">体育运动</a></li>
-                        <li><a href="#">户外运动</a></li>
-                        <li class="even"><a href="#">1</a></li>
-                        <li><a href="#">1</a></li>
-                        <li class="even"><a href="#">1</a></li>
-                    </ul>
-                </div>
-                <div class="panel">
-                    <div class="panel-heading">Panel heading without title</div>
-                    <div class="panel-body">
-                        Panel content
+                    <div class="x-grid-row">
+                        <div class="x-grid-1-2">
+                            <a href="#">小区黄页</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#" class="even">生活医疗</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#">小区黄页</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#" class="even">生活医疗</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#">小区黄页</a>
+                        </div>
+                        <div class="x-grid-1-2">
+                            <a href="#" class="even">生活医疗</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -155,11 +219,20 @@
     <script type="text/javascript" src="../../c/requirejs/require-min.js"></script>
     <script type="text/javascript" src="../../c/requirejs/require-config.js"></script>
     <script type="text/javascript">
-    require(['jquery'], function($){
-        $(document).on('click', '[data-toggle=collapse]', function(){
+    require(['jquery', 'sib.popup'], function($, Popup) {
+        $(document).on('click', '[data-toggle=collapse]', function() {
             var target = $(this).attr('data-target');
             var $target = $(target);
             $target.toggle();
+        });
+
+        new Popup({
+            target : '#J_userDetail',
+            trigger : '#J_loginBtn',
+            position : {
+                at : 'right bottom',
+                my : 'right top'
+            }
         });
     });
     </script>

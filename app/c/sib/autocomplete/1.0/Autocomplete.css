@@ -18,12 +18,8 @@
 .sib-ac-resultlist .sib-menu{border-radius:0px;padding:0px;}
 .sib-menu-item .sib-radius-all{border-radius:0px;}
 
-.sib-autocomplete .sib-state-hover,
-.sib-autocomplete .sib-widget-content .sib-state-hover,
-.sib-autocomplete .sib-widget-header .sib-state-hover,
-.sib-autocomplete .sib-state-focus,
-.sib-autocomplete .sib-widget-content .sib-state-focus,
-.sib-autocomplete .sib-widget-header .sib-state-focus {
+.sib-autocomplete a.sib-state-hover,
+.sib-autocomplete a.sib-state-focus{
     border: 1px solid #aaa;/*#417eb7;*/
     background: #9cd9ff; /*#417eb7*/
     /* color: #fff; */

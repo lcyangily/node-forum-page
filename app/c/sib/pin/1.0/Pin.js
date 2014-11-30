@@ -12,11 +12,11 @@
  */
 define(function(require, exports, module){
     //导入依赖样式资源
-    require('css!./pin.css');
+    //require('css!./pin.css');
 
-    var $      = require('../../core/1.0/jQuery+'),
-        Widget = require('../../core/1.0/Widget'),
-        SIB    = require('../../core/1.0/Sib'),
+    var $      = require('jquery+'),
+        Widget = require('sib.widget'),
+        SIB    = require('sib.sib'),
         w      = (function(){return this})(), 
         d      = w.document;
 
@@ -105,9 +105,10 @@ define(function(require, exports, module){
                     opts  = state.options,
                     pad   = opts.padding,
                     $w    = $(w),
-                    from  = state.from,
-                    to    = state.to,
-                    end   = state.end,
+                    //_refresh后state.from将被更新，如果这里使用闭包，更新后计算将无法获取新的from
+                    //from  = state.from, 
+                    //to    = state.to,
+                    //end   = state.end,
                     isAfter  = false,
                     isBefore = false;
 
@@ -116,9 +117,14 @@ define(function(require, exports, module){
                 } else {
                     $w.on('scroll', onScroll);
                 }
-                $w.resize(function(){
+                /*$w.resize(function(){
                     self._refresh();
-                });
+                });*/
+                //$w.resize 莫名经常不触发，改为body resize
+                $('body').resize(SIB.fixInterval(function(){
+                    self._refresh();
+                }, 500));
+                
                 $w.load(function(){
                     self._refresh();
                     onScroll();
@@ -197,18 +203,18 @@ define(function(require, exports, module){
                 var allRule = {
                     'x' : {
                         isBeyondContainer : function(){ //元素大小超出容器范围
-                            return from.left + $el.outerWidth() > end.left;
+                            return state.from.left + $el.outerWidth() > state.end.left;
                         },
                         isInView : function() {
                             var scrollX = $w.scrollLeft();
-                            return from.left < scrollX && to.left > scrollX
+                            return state.from.left < scrollX && state.to.left > scrollX
                         }, 
                         isBeforeView : function() { //容器在当前可视范围的左边
-                            return $w.scrollLeft() >= to.left
+                            return $w.scrollLeft() >= state.to.left
                         },
                         beforeViewProp : function(){
                             return {
-                                left : to.left - state.pOffset.left + pad.left
+                                left : state.to.left - state.pOffset.left + pad.left
                             }
                         },
                         inViewProp : function() {
@@ -225,29 +231,31 @@ define(function(require, exports, module){
                     },
                     'y' : {
                         isBeyondContainer : function(){ //元素大小超出容器范围
-                            return from.top + $el.outerHeight() > end.top;
+                            return state.from.top + $el.outerHeight() > state.end.top;
                         },
                         isInView : function() {
                             var scrollY = $w.scrollTop();
-                            return from.top < scrollY && to.top > scrollY;
+                            return state.from.top < scrollY && state.to.top > scrollY;
                         }, 
                         isBeforeView : function() { 
                             var scrollY = $w.scrollTop();
-                            return scrollY >= to.top;
+                            return scrollY >= state.to.top;
                         },
                         beforeViewProp : function(){
                             return {
-                                top : to.top - state.pOffset.top + pad.top
+                                top : state.to.top - state.pOffset.top + pad.top,
+                                left : state.from.left - state.pOffset.left
                             }
                         },
                         inViewProp : function() {
                             return {
-                                top  : $w.scrollTop() - state.pOffset.top + pad.top
+                                top  : $w.scrollTop() - state.pOffset.top + pad.top,
+                                left : state.from.left - state.pOffset.left
                             }
                         },
                         inViewFixedProp : function() {
                             return {
-                                left: $el.offset().left,
+                                left: state.from.left,
                                 top : pad.top
                             }
                         }
@@ -302,6 +310,7 @@ define(function(require, exports, module){
             },
             _refresh : function(){
                 var state = this.state;
+                //this.destroy();
                 this._prepareOption();
                 if(!state.disabled) {
                     this._buildHTML();
@@ -330,7 +339,7 @@ define(function(require, exports, module){
                     opts  = state.options,
                     $ph   = state.$placeholder;
 
-                $ph && $ph.reomve();
+                $ph && $ph.remove();
                 $el.attr('style', state.origStyle);
                 if (opts.activeCls) { 
                     $el.removeClass(opts.activeCls); 
