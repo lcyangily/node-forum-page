@@ -206,3 +206,6 @@ a:hover{
 .label{
     padding: .3em .6em .3em;
 }
+.nav-sm > li > a{
+    padding: 5px 10px;
+}

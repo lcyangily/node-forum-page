@@ -204,4 +204,46 @@
 .card-mini .info-value {
     color: #999;
 }
-/**user card mini end **/
+/** user card mini end **/
+
+/** 管理 **/
+.mgr-leftnav-wrap,
+.mgr-cnt-wrap{
+    margin-bottom: 0px;
+    height: 100%;
+}
+.mgr-cnt-wrap{
+    padding:10px 10px 10px 0px;
+}
+.mgr-leftnav{
+    height: 100%;
+    border-right: 1px solid #ddd;
+    background: #fafafa;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.mgr-leftnav .mt{
+    padding:15px 0px 15px 10px;
+    margin:0px;
+    font-size: 16px;
+    font-weight: bold;
+}
+.mgr-leftnav li {
+    margin: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 33px;
+    border-bottom: 1px solid #e6e6e6;
+}
+.mgr-leftnav li a{
+    display: block;
+    height: 33px;
+    line-height: 33px;
+}
+.mgr-leftnav li.current {
+    margin-right: -1px;
+    background: #FFF;
+}
+.bbsa {
+    border-bottom: 1px solid #e6e6e6;
+}
