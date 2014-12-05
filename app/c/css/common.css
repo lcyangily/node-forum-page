@@ -155,7 +155,7 @@
 }
 .revert-it .revert-bd .btns{
     padding: 10px 0 5px;
-    visibility: hidden;
+    /* visibility: hidden; */
 }
 .revert-it:hover .revert-bd .btns{
     visibility: visible;
