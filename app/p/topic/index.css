@@ -57,20 +57,20 @@
     margin-right: 10px;
     float: left;
 }
-#topic .zanlogs a {
+.zans .btn{
+    margin-right: 10px;
+}
+.zans .zanlogs a {
     display: inline-block;
 }
-#topic .zanlogs a img {
-    margin-top: -2px;
+.zans .zanlogs a img {
     width: 30px;
     height: 30px;
     border-radius: 30px;
     margin-right: 5px;
     border: 2px solid #fff;
     box-shadow: 1px 1px 2px #ccc;
-}
-#topic .zans .btn{
-    margin-right: 10px;
+    margin-top: -2px;;
 }
 .topic-comments .btns .btn{
     padding-left: 0px;
