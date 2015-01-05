@@ -50,7 +50,7 @@ a:hover{
     padding: 0px;
     float: left;
     display: block;
-    background: url(../../images/logo.png) left 0px;
+    /* background: url(../../images/logo.png) left 0px; */
     /* background: #FF5E52; */
 }
 .navbar .nav > li a {
