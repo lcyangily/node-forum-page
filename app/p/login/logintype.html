@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>威尼斯水城社区</title>
+    <!--<link rel="stylesheet" href="../../components/css/normalize.css">-->
+    <link rel="stylesheet" href="../../c/css/normalize.css">
+    <link rel="stylesheet" href="../../c/css/base.css">
+    <link rel="stylesheet" href="../../../bower_components/bootstrap/dist/css/bootstrap.css">
+
+    <link rel="stylesheet" href="../../c/css/grid.css">
+    <link rel="stylesheet" href="../../c/css/grid-x.css">
+    <link rel="stylesheet" href="../../c/css/common.css">
+    <link rel="stylesheet" href="../../c/css/iconfont.css">
+    <link rel="stylesheet" href="./logintype.css">
+</head>
+<body>
+    <div id="J_loginBox" class="logintype-wrap">
+        <div class="login-type">
+            <ul class="clearfix">
+                <li class="first">
+                    <a href="/auth/weibo" target="_top" class="avatar">
+                        <span class="login-icons">
+                            <span class="login-icon">
+                                <i class="iconfont">&#xe644;</i>
+                                <i class="iconfont iconfont-active">&#xe644;</i>
+                            </span>
+                        </span>
+                    </a>
+                    <span class="login_type">微博</span>
+                </li>
+                <li>
+                    <a href="/auth/qq" target="_top" class="avatar">
+                        <!-- <a href="javascript:;" class="avatar"> -->
+                        <span class="login-icons">
+                            <span class="login-icon">
+                                <i class="iconfont">&#xe646;</i>
+                                <i class="iconfont iconfont-active">&#xe646;</i>
+                            </span>
+                        </span>
+                    </a>
+                    <span class="login_type">QQ</span>
+                </li>
+                <li class="disabled">
+                    <a href="/auth/weixin" target="_top" class="avatar">
+                        <span class="login-icons">
+                            <span>
+                                <i class="iconfont">&#xe647;</i>
+                                <i class="iconfont iconfont-active">&#xe647;</i>
+                            </span>
+                        </span>
+                    </a>
+                    <span class="login_type">微信</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    require(['jquery', 'sib.sib', 'lbl'], function($, Sib, LBL){
+        var goUrl = function(data){
+            window.frameElement.trigger('close', {
+                code : 'loginsuccess', 
+                user : data.user
+            });
+        }
+
+        $('#J_loginForm').submit(function(){
+            var fj = Sib.form2json('#J_loginForm');
+            $.ajax({
+                type : 'POST',
+                url  : '/login',
+                /*async: false,*/
+                data : fj,
+                dataType : 'json',
+                success : function(data) {
+                    if(data && data.success){
+                        //进行成功的跳转
+                        goUrl(data);
+                    } else {
+                        var msg = (data && data.errorMsg) || data;
+                        alert(msg);
+                    }
+                },
+                error : function(err) {
+                    var data = JSON.parse(err.responseText);
+                    var msg = (data && data.errorMsg) || "不好意思，系统繁忙，请稍后再试！";
+                    alert(msg);
+                },
+                complete : function(){
+                    Dialog.unblockUI();
+                }
+            });
+        });
+    });
+</script>
